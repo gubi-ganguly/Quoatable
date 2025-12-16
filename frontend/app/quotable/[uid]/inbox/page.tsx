@@ -8,6 +8,7 @@ import axios from "axios"
 import { EmailList } from "@/components/email/email-list"
 import { Email } from "@/components/email/email-card"
 import { EmailDetail } from "@/components/email/email-detail"
+import { EmailOpportunity, AnalysisResult } from "@/components/email/email-opportunity"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -42,6 +43,12 @@ export default function InboxPage({ params }: InboxPageProps) {
   
   // Pagination state
   const [skip, setSkip] = useState(0)
+  
+  // Analysis state
+  const [showOpportunity, setShowOpportunity] = useState(false)
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [analysisError, setAnalysisError] = useState<string | null>(null)
   
   // Observer for infinite scroll
   const observerTarget = useRef(null)
@@ -171,9 +178,47 @@ export default function InboxPage({ params }: InboxPageProps) {
     setHasMore(true)
     setSkip(0)
     setEmails([])
+    setShowOpportunity(false)
+    setAnalysisResult(null)
     // Increment refresh key to force useEffect to trigger
     setRefreshKey(prev => prev + 1)
   }
+
+  const handleAnalyzeEmail = async () => {
+    if (!selectedEmail) return
+
+    setShowOpportunity(true)
+    setIsAnalyzing(true)
+    setAnalysisError(null)
+    setAnalysisResult(null)
+
+    const sessionId = localStorage.getItem("session_id")
+    
+    try {
+      const response = await axios.post<AnalysisResult>(
+        `/api/email/${selectedEmail.id}/analyze`,
+        {},
+        {
+           headers: { "X-Session-Id": sessionId }
+        }
+      )
+      console.log("Analysis Result:", response.data)
+      setAnalysisResult(response.data)
+    } catch (err) {
+      console.error("Analysis failed:", err)
+      setAnalysisError("Failed to analyze email. Please try again.")
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
+  // Close opportunity panel when email is unselected
+  useEffect(() => {
+    if (!selectedEmail) {
+      setShowOpportunity(false)
+      setAnalysisResult(null)
+    }
+  }, [selectedEmail])
 
   // Decode the UID for display
   const displayUid = decodeURIComponent(resolvedParams.uid)
@@ -299,7 +344,10 @@ export default function InboxPage({ params }: InboxPageProps) {
             </div>
 
             {/* Detail View */}
-            <div className={`col-span-1 lg:col-span-8 h-full bg-slate-50/30 dark:bg-slate-900/30 min-h-0 ${!selectedEmail ? 'hidden lg:block' : 'block'}`}>
+            <div className={`col-span-1 min-h-0 bg-slate-50/30 dark:bg-slate-900/30 ${
+                !selectedEmail ? 'hidden lg:block lg:col-span-8' : 
+                showOpportunity ? 'lg:col-span-5' : 'lg:col-span-8'
+            }`}>
               {selectedEmail ? (
                 <div className="h-full flex flex-col min-h-0">
                     {/* Mobile Back Button */}
@@ -310,7 +358,12 @@ export default function InboxPage({ params }: InboxPageProps) {
                         </Button>
                     </div>
                     <div className="flex-1 min-h-0">
-                      <EmailDetail email={selectedEmail} onClose={() => setSelectedEmail(null)} />
+                      <EmailDetail 
+                        email={selectedEmail} 
+                        onClose={() => setSelectedEmail(null)} 
+                        onAnalyze={handleAnalyzeEmail}
+                        isAnalyzing={isAnalyzing}
+                      />
                     </div>
                 </div>
               ) : (
@@ -325,6 +378,18 @@ export default function InboxPage({ params }: InboxPageProps) {
                 </div>
               )}
             </div>
+
+            {/* Opportunity View */}
+            {showOpportunity && selectedEmail && (
+              <div className="hidden lg:block lg:col-span-3 h-full min-h-0 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 animate-in slide-in-from-right-4 duration-200">
+                <EmailOpportunity 
+                  result={analysisResult} 
+                  isLoading={isAnalyzing} 
+                  error={analysisError}
+                  onClose={() => setShowOpportunity(false)}
+                />
+              </div>
+            )}
           </div>
         )}
       </main>

@@ -1,4 +1,4 @@
-import { Paperclip } from "lucide-react"
+import { Paperclip, FileSpreadsheet, FileText, Image as ImageIcon, File } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export interface Email {
@@ -28,6 +28,13 @@ export interface Email {
   is_read?: boolean
   hasAttachments?: boolean
   has_attachments?: boolean
+  attachments?: Array<{
+    id?: string
+    name: string
+    contentType: string
+    size?: number
+    isInline?: boolean
+  }>
   importance: string
   toRecipients?: Array<{ emailAddress: { address: string, name: string | null } }>
   ccRecipients?: Array<{ emailAddress: { address: string, name: string | null } }>
@@ -55,6 +62,24 @@ export function formatDate(dateString: string) {
   })
 }
 
+function getAttachmentIcon(contentType: string, fileName: string) {
+  const lowerName = fileName.toLowerCase()
+  
+  if (contentType.includes('spreadsheet') || contentType.includes('excel') || contentType.includes('csv') || lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls') || lowerName.endsWith('.csv')) {
+    return <FileSpreadsheet className="h-3 w-3 text-green-600" />
+  }
+  
+  if (contentType.includes('pdf') || lowerName.endsWith('.pdf')) {
+    return <FileText className="h-3 w-3 text-red-500" />
+  }
+  
+  if (contentType.includes('image') || lowerName.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+    return <ImageIcon className="h-3 w-3 text-blue-500" />
+  }
+  
+  return <File className="h-3 w-3 text-slate-400" />
+}
+
 export function EmailCard({ email, onClick, isSelected }: EmailCardProps) {
   // Handle both snake_case and camelCase from API
   const fromField = email.from || email.from_
@@ -62,11 +87,31 @@ export function EmailCard({ email, onClick, isSelected }: EmailCardProps) {
   const isRead = email.isRead ?? email.is_read ?? false
   const hasAttachments = email.hasAttachments ?? email.has_attachments ?? false
   const bodyPreview = email.bodyPreview || email.body_preview || ""
+  const attachments = email.attachments || []
 
   const senderName = fromField?.emailAddress?.name
   const senderAddress = fromField?.emailAddress?.address
   const displayName = senderName || senderAddress || "?"
   const avatarInitial = displayName !== "?" ? displayName.charAt(0).toUpperCase() : "?"
+
+  // Deduplicate icons (e.g. show only one PDF icon even if there are 3 PDFs)
+  const uniqueIconTypes = new Set<string>();
+  const displayIcons: React.ReactNode[] = [];
+
+  attachments.forEach(att => {
+    let type = 'file';
+    const lowerName = att.name.toLowerCase();
+    const contentType = att.contentType.toLowerCase();
+
+    if (contentType.includes('spreadsheet') || contentType.includes('excel') || contentType.includes('csv') || lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls') || lowerName.endsWith('.csv')) type = 'sheet';
+    else if (contentType.includes('pdf') || lowerName.endsWith('.pdf')) type = 'pdf';
+    else if (contentType.includes('image') || lowerName.match(/\.(jpg|jpeg|png|gif|webp)$/)) type = 'image';
+
+    if (!uniqueIconTypes.has(type)) {
+      uniqueIconTypes.add(type);
+      displayIcons.push(getAttachmentIcon(att.contentType, att.name));
+    }
+  });
 
   return (
     <div
@@ -108,21 +153,30 @@ export function EmailCard({ email, onClick, isSelected }: EmailCardProps) {
                 {email.subject || "(No Subject)"}
               </div>
             </div>
-            <div className="text-xs text-muted-foreground whitespace-nowrap shrink-0">
-              {formatDate(receivedDateTime)}
+            
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Attachment Icons - Left of Date */}
+              {displayIcons.length > 0 ? (
+                <div className="flex -space-x-1">
+                  {displayIcons.map((icon, i) => (
+                    <div key={i} className="relative z-10 bg-white dark:bg-slate-950 rounded-full p-0.5 shadow-sm border border-slate-100 dark:border-slate-800">
+                      {icon}
+                    </div>
+                  ))}
+                </div>
+              ) : hasAttachments && (
+                <Paperclip className="h-3 w-3 text-slate-400" />
+              )}
+              
+              <div className="text-xs text-muted-foreground whitespace-nowrap">
+                {formatDate(receivedDateTime)}
+              </div>
             </div>
           </div>
           
           {bodyPreview && (
             <div className="line-clamp-2 text-xs text-muted-foreground mb-1 leading-relaxed">
               {bodyPreview}
-            </div>
-          )}
-          
-          {hasAttachments && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Paperclip className="h-3 w-3" />
-              <span className="font-medium">Attachment</span>
             </div>
           )}
         </div>

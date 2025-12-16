@@ -1,6 +1,7 @@
 from typing import List, Optional, Any, Literal, Dict
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from datetime import datetime
+from src.schemas.products import Product
 
 # --- Shared Models ---
 
@@ -53,6 +54,7 @@ class EmailResponse(BaseModel):
     is_draft: bool = Field(..., alias="isDraft")
     importance: str
     has_attachments: bool = Field(..., alias="hasAttachments")
+    attachments: List[Attachment] = Field([], alias="attachments")
     conversation_id: Optional[str] = Field(None, alias="conversationId")
     web_link: Optional[str] = Field(None, alias="webLink")
 
@@ -108,3 +110,14 @@ class AuthStatusResponse(BaseModel):
     is_authenticated: bool
     user_email: Optional[str] = None
     message: str
+
+# --- LLM Models ---
+
+class EmailAnalysisResponse(BaseModel):
+    is_customer_request: bool = Field(..., alias="isCustomerRequest")
+    confidence: float
+    reasoning: str
+    products: List[Product] = []
+
+    model_config = ConfigDict(populate_by_name=True)
+

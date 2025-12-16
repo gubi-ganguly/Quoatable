@@ -1,0 +1,27 @@
+1. Email comes in
+2. LLM decides if it is a customer request
+3. If it is:
+    - In email body, looks for
+        - CESS #'s in Email
+        - Product names 
+         
+
+- Email body
+- Email body + image of product
+- Email body + pdf
+- Email body + image of spreadsheet
+- Email body image of amazon link
+- Email body + image of pdf
+- spreadsheet
+- pdf
+- Multiple emails
+
+- Perfect CESS # with comment
+- CESS #
+- MPN #
+- Detailed Product names
+- Generic Product names
+- Product description
+
+
+

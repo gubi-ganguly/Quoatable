@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     MS_REDIRECT_URI: str
     SCOPES: List[str] = ["Mail.Read", "Mail.ReadWrite", "Mail.Send"]
     
+    # OpenAI
+    OPENAI_API_KEY: str
+    OPENAI_MODEL: str = "gpt-4o"
+    
     # Optional: Graph API Base URL if we want to config it
     GRAPH_API_BASE_URL: str = "https://graph.microsoft.com/v1.0"
 

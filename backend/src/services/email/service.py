@@ -119,7 +119,8 @@ class EmailService:
         params = {
             "$top": limit,
             "$skip": skip,
-            "$orderby": order_by
+            "$orderby": order_by,
+            "$expand": "attachments($select=id,name,contentType,size,isInline)"
         }
         
         if not include_body:

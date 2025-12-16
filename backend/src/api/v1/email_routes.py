@@ -1,9 +1,11 @@
 from typing import List, Optional, Literal
 from fastapi import APIRouter, Header, HTTPException, Query, Path, Body
 from src.services.email.service import email_service
+from src.services.llm.service import llm_service
 from src.schemas.email import (
     EmailListResponse, EmailResponse, SendEmailRequest, SimpleSendEmailRequest, 
-    ReplyEmailRequest, ForwardEmailRequest, MarkReadRequest, Attachment
+    ReplyEmailRequest, ForwardEmailRequest, MarkReadRequest, Attachment,
+    EmailAnalysisResponse
 )
 
 router = APIRouter(prefix="/emails", tags=["Emails"])
@@ -280,3 +282,42 @@ def forward_email(
         return {"success": True, "message": "Email forwarded successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/{email_id}/analyze", response_model=EmailAnalysisResponse)
+async def analyze_email(
+    email_id: str,
+    x_session_id: str = Header(..., alias="X-Session-Id")
+):
+    # 1. Get the email content using EmailService
+    # Note: get_email is synchronous, but we're in an async function. 
+    # For this scale it's fine, but in high load scenarios this should be offloaded or made async.
+    email_service_instance = get_service_or_401(x_session_id)
+    email = email_service_instance.get_email(x_session_id, email_id)
+    
+    if not email:
+        raise HTTPException(status_code=404, detail="Email not found")
+    
+    subject = email.get("subject", "")
+    
+    # Handle body content properly (Graph returns dict or str)
+    body_data = email.get("body", {})
+    if isinstance(body_data, dict):
+        body_content = body_data.get("content", "")
+    else:
+        body_content = str(body_data)
+    
+    # 2. Analyze intent using LLMService
+    intent = await llm_service.analyze_email_intent(subject, body_content)
+    
+    # 3. If it is a request, extract products immediately
+    products = []
+    if intent.get("is_customer_request"):
+        product_data = await llm_service.extract_product_data(subject, body_content)
+        products = product_data.get("products", [])
+
+    return {
+        "is_customer_request": intent.get("is_customer_request"),
+        "confidence": intent.get("confidence"),
+        "reasoning": intent.get("reasoning"),
+        "products": products
+    }

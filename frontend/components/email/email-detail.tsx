@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Calendar, Clock, Download, File, Loader2, Mail, Paperclip, Reply, ReplyAll, Forward, MoreVertical } from "lucide-react"
+import { Calendar, Clock, Download, File, Loader2, Mail, Paperclip, Reply, ReplyAll, Forward, MoreVertical, Sparkles } from "lucide-react"
 import axios from "axios"
 
 import { Button } from "@/components/ui/button"
@@ -20,9 +20,11 @@ interface Attachment {
 interface EmailDetailProps {
   email: Email
   onClose?: () => void
+  onAnalyze?: () => void
+  isAnalyzing?: boolean
 }
 
-export function EmailDetail({ email, onClose }: EmailDetailProps) {
+export function EmailDetail({ email, onClose, onAnalyze, isAnalyzing = false }: EmailDetailProps) {
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [isLoadingAttachments, setIsLoadingAttachments] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -99,6 +101,22 @@ export function EmailDetail({ email, onClose }: EmailDetailProps) {
             {email.subject || "(No Subject)"}
           </h2>
           <div className="flex items-center gap-1">
+             {onAnalyze && (
+               <Button 
+                 variant="outline" 
+                 size="sm" 
+                 onClick={onAnalyze} 
+                 disabled={isAnalyzing}
+                 className="mr-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+               >
+                  {isAnalyzing ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="mr-2 h-4 w-4" />
+                  )}
+                  Analyze
+               </Button>
+             )}
              <Button variant="ghost" size="icon" className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
                 <Reply className="h-4 w-4" />
              </Button>

@@ -19,3 +19,7 @@ email-validator>=2.1.0
 
 # Python dotenv for environment variable management (optional but useful)
 python-dotenv>=1.0.0
+
+# OpenAI
+openai>=1.12.0
+
