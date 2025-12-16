@@ -69,7 +69,7 @@ MS_TENANT_ID=your_azure_tenant_id
 Start the development server:
 
 ```bash
-uvicorn src.main:app --reload
+python3 -m uvicorn src.main:app --reload
 ```
 
 The API will be available at `http://localhost:8000`.
