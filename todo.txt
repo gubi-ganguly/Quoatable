@@ -1,1 +1,3 @@
-Finish wizard
+1. Connect to CME DB 
+2. Create DB Service
+ 

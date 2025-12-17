@@ -267,17 +267,41 @@ export default function Phase1Classification() {
                                  QUOTABLE <ChevronDown className="h-3 w-3 ml-1 opacity-50" />
                               </Badge>
                            </td>
-                           <td className="px-3 py-4 font-mono text-slate-500 text-xs">
-                              {item.partNumber || "-"}
+                           <td className="px-3 py-4 font-mono text-slate-500 text-xs relative group/tooltip">
+                              <div className="truncate max-w-[128px]">{item.partNumber || "-"}</div>
+                              {item.partNumber && item.partNumber.length > 0 && (
+                                 <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 px-3 py-2 bg-slate-900 text-white text-xs rounded-md shadow-lg opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all whitespace-nowrap pointer-events-none">
+                                    {item.partNumber}
+                                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
+                                 </div>
+                              )}
                            </td>
-                           <td className="px-3 py-4 font-semibold text-slate-900 text-sm truncate max-w-[160px]" title={item.name}>
-                              {item.name || "Unknown Model"}
+                           <td className="px-3 py-4 font-semibold text-slate-900 text-sm relative group/tooltip">
+                              <div className="truncate max-w-[160px]">{item.name || "Unknown Model"}</div>
+                              {item.name && item.name.length > 0 && (
+                                 <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 px-3 py-2 bg-slate-900 text-white text-xs rounded-md shadow-lg opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all whitespace-nowrap max-w-xs pointer-events-none">
+                                    {item.name}
+                                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
+                                 </div>
+                              )}
                            </td>
-                           <td className="px-3 py-4 text-slate-600 text-xs truncate max-w-[144px]" title={item.description}>
-                              {item.description || "-"}
+                           <td className="px-3 py-4 text-slate-600 text-xs relative group/tooltip">
+                              <div className="truncate max-w-[144px]">{item.description || "-"}</div>
+                              {item.description && item.description.length > 0 && item.description !== "-" && (
+                                 <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 px-3 py-2 bg-slate-900 text-white text-xs rounded-md shadow-lg opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all max-w-md break-words pointer-events-none">
+                                    {item.description}
+                                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
+                                 </div>
+                              )}
                            </td>
-                           <td className="px-3 py-4 text-slate-500 text-sm truncate max-w-[128px]">
-                              {item.vendor || "Unknown"}
+                           <td className="px-3 py-4 text-slate-500 text-sm relative group/tooltip">
+                              <div className="truncate max-w-[128px]">{item.vendor || "Unknown"}</div>
+                              {item.vendor && item.vendor !== "Unknown" && item.vendor.length > 0 && (
+                                 <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 px-3 py-2 bg-slate-900 text-white text-xs rounded-md shadow-lg opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all whitespace-nowrap pointer-events-none">
+                                    {item.vendor}
+                                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
+                                 </div>
+                              )}
                            </td>
                            <td className="px-3 py-4 text-right font-medium text-slate-700 text-sm">
                               {item.unitPrice ? `$${item.unitPrice.toLocaleString()}` : "-"}
