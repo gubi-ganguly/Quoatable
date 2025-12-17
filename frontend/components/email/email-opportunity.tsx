@@ -1,4 +1,4 @@
-import { Loader2, AlertCircle, CheckCircle2, Package, Sparkles } from "lucide-react"
+import { Loader2, AlertCircle, CheckCircle2, Package, Sparkles, Briefcase } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -8,6 +8,7 @@ export interface Product {
   name?: string
   quantity?: number
   partNumber?: string
+  partNumberType?: "CESS" | "MPN"
   description?: string
 }
 
@@ -16,6 +17,9 @@ export interface AnalysisResult {
   confidence: number
   reasoning: string
   products: Product[]
+  opportunityName?: string
+  accountName?: string
+  keyContact?: string
 }
 
 interface EmailOpportunityProps {
@@ -89,6 +93,38 @@ export function EmailOpportunity({ result, isLoading, error, onClose }: EmailOpp
 
       <div className="flex-1 overflow-y-auto min-h-0">
         <div className="p-6 space-y-6">
+          {/* CRM Details */}
+          {(result.opportunityName || result.accountName) && (
+             <div className="space-y-3">
+                <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                   <Briefcase className="h-4 w-4 text-slate-500" />
+                   Salesforce Details
+                </h3>
+                <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg p-3 space-y-3">
+                   {result.opportunityName && (
+                      <div className="space-y-1">
+                         <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">Opportunity Name</div>
+                         <div className="text-sm font-medium text-slate-900 dark:text-slate-100">{result.opportunityName}</div>
+                      </div>
+                   )}
+                   <div className="grid grid-cols-2 gap-4">
+                      {result.accountName && (
+                        <div className="space-y-1">
+                            <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">Account</div>
+                            <div className="text-sm text-slate-700 dark:text-slate-300">{result.accountName}</div>
+                        </div>
+                      )}
+                      {result.keyContact && (
+                        <div className="space-y-1">
+                            <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">Key Contact</div>
+                            <div className="text-sm text-slate-700 dark:text-slate-300">{result.keyContact}</div>
+                        </div>
+                      )}
+                   </div>
+                </div>
+             </div>
+          )}
+
           {/* Reasoning */}
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100 flex items-center gap-2">
@@ -125,7 +161,9 @@ export function EmailOpportunity({ result, isLoading, error, onClose }: EmailOpp
                     <CardContent className="p-3 text-xs space-y-2">
                       {product.partNumber && (
                         <div className="flex gap-2">
-                          <span className="text-slate-500 font-medium">Part #:</span>
+                          <span className="text-slate-500 font-medium">
+                            {product.partNumberType === "CESS" ? "CESS #:" : "MPN:"}
+                          </span>
                           <span className="font-mono text-slate-700 dark:text-slate-300 select-all">{product.partNumber}</span>
                         </div>
                       )}
@@ -140,7 +178,7 @@ export function EmailOpportunity({ result, isLoading, error, onClose }: EmailOpp
               </div>
             </div>
           )}
-          
+
           {result.is_customer_request && (!result.products || result.products.length === 0) && (
             <div className="p-4 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 text-center">
               <p className="text-sm text-slate-500">No specific product details extracted.</p>

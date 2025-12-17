@@ -2,6 +2,7 @@ from typing import List, Optional, Literal
 from fastapi import APIRouter, Header, HTTPException, Query, Path, Body
 from src.services.email.service import email_service
 from src.services.llm.service import llm_service
+from src.services.crm.service import crm_service
 from src.schemas.email import (
     EmailListResponse, EmailResponse, SendEmailRequest, SimpleSendEmailRequest, 
     ReplyEmailRequest, ForwardEmailRequest, MarkReadRequest, Attachment,
@@ -311,13 +312,21 @@ async def analyze_email(
     
     # 3. If it is a request, extract products immediately
     products = []
+    opportunity_name = None
     if intent.get("is_customer_request"):
         product_data = await llm_service.extract_product_data(subject, body_content)
         products = product_data.get("products", [])
+        opportunity_name = product_data.get("opportunity_name")
+
+    # 4. Deduce Account and Contact info
+    account_name, key_contact = crm_service.deduce_account_info(email.get("from"))
 
     return {
         "is_customer_request": intent.get("is_customer_request"),
         "confidence": intent.get("confidence"),
         "reasoning": intent.get("reasoning"),
-        "products": products
+        "products": products,
+        "opportunity_name": opportunity_name,
+        "account_name": account_name,
+        "key_contact": key_contact
     }

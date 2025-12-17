@@ -1,6 +1,8 @@
 import msal
 import requests
 import uuid
+import json
+import os
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta, date
 from src.core.config import settings
@@ -9,9 +11,28 @@ from src.schemas.email import (
     ForwardEmailRequest, AttachmentInput
 )
 
+# Token persistence
+TOKEN_FILE = "tokens.json"
+
+def load_tokens():
+    if os.path.exists(TOKEN_FILE):
+        try:
+            with open(TOKEN_FILE, 'r') as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def save_tokens():
+    try:
+        with open(TOKEN_FILE, 'w') as f:
+            json.dump(TOKENS, f)
+    except Exception as e:
+        print(f"Error saving tokens: {e}")
+
 # In-memory storage for demonstration purposes
 # In production, use Redis or a database
-TOKENS = {} # session_id -> token_dict (containing access_token)
+TOKENS = load_tokens() # session_id -> token_dict (containing access_token)
 
 class EmailService:
     def __init__(self):
@@ -53,6 +74,7 @@ class EmailService:
         
         if "access_token" in result:
             TOKENS[session_id] = result
+            save_tokens()
             
             # Get user info to return email
             user_info = self.get_user_profile(session_id)
@@ -96,6 +118,7 @@ class EmailService:
     def logout(self, session_id: str):
         if session_id in TOKENS:
             del TOKENS[session_id]
+            save_tokens()
 
     def get_emails(
         self, 

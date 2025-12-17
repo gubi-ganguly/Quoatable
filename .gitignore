@@ -34,6 +34,10 @@ Thumbs.db
 # Logs
 *.log
 
+# Sensitive token files
+tokens.json
+**/tokens.json
+
 # Node (for frontend)
 node_modules/
 npm-debug.log*

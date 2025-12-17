@@ -118,6 +118,11 @@ class EmailAnalysisResponse(BaseModel):
     confidence: float
     reasoning: str
     products: List[Product] = []
+    
+    # CRM / Opportunity Info
+    opportunity_name: Optional[str] = Field(None, alias="opportunityName")
+    account_name: Optional[str] = Field(None, alias="accountName")
+    key_contact: Optional[str] = Field(None, alias="keyContact")
 
     model_config = ConfigDict(populate_by_name=True)
 

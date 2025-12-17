@@ -205,6 +205,11 @@ export default function InboxPage({ params }: InboxPageProps) {
       console.log("Analysis Result:", response.data)
       setAnalysisResult(response.data)
     } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        localStorage.removeItem("session_id")
+        router.push("/")
+        return
+      }
       console.error("Analysis failed:", err)
       setAnalysisError("Failed to analyze email. Please try again.")
     } finally {

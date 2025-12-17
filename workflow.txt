@@ -6,6 +6,7 @@
         - Product names 
          
 
+Variations
 - Email body
 - Email body + image of product
 - Email body + pdf
