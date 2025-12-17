@@ -27,6 +27,8 @@ interface EmailsResponse {
 
 const ITEMS_PER_PAGE = 25
 
+import { Navbar } from "@/components/layout/navbar"
+
 export default function InboxPage({ params }: InboxPageProps) {
   const resolvedParams = use(params)
   const router = useRouter()
@@ -229,59 +231,9 @@ export default function InboxPage({ params }: InboxPageProps) {
   const displayUid = decodeURIComponent(resolvedParams.uid)
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 overflow-hidden">
-      {/* Header Section */}
-      <header className="flex-none border-b bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm z-10">
-        <div className="mx-auto w-full px-6 py-4">
-          <div className="flex flex-col gap-4">
-            {/* Title and Search Row */}
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
-                  <Mail className="h-5 w-5 text-white" />
-                </div>
-                <div className="flex flex-col">
-                  <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                    Inbox
-                  </h1>
-                  <p className="text-xs text-muted-foreground truncate max-w-xs">{displayUid}</p>
-                </div>
-              </div>
-              
-              {/* Enhanced Search Bar */}
-              <form onSubmit={handleSearch} className="flex w-full max-w-md items-center gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input 
-                    placeholder="Search emails..." 
-                    className="pl-9 pr-8 h-9 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm focus:ring-2 focus:ring-blue-500 transition-all text-sm" 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  {searchQuery && (
-                    <button 
-                      type="button"
-                      onClick={clearSearch}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-                <Button 
-                  type="submit" 
-                  size="sm"
-                  className="h-9 px-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-md transition-all"
-                >
-                  Search
-                </Button>
-              </form>
-            </div>
-
-          </div>
-        </div>
-      </header>
-
+    <div className="h-screen flex flex-col bg-white overflow-hidden">
+      <Navbar />
+      
       {/* Main Content */}
       <main className="flex-1 min-h-0 w-full max-w-[1920px] mx-auto px-4 py-4 lg:px-6">
         {error && (

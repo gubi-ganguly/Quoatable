@@ -1,6 +1,9 @@
 from typing import Dict, Any, Optional, Tuple
 
 class CRMService:
+    def __init__(self):
+        self._opportunities = {}
+
     def deduce_account_info(self, from_data: Dict[str, Any]) -> Tuple[Optional[str], Optional[str]]:
         """
         Deduces Account Name and Key Contact from the sender's email information.
@@ -61,5 +64,35 @@ class CRMService:
                 account_name = domain.title()
                 
         return account_name, key_contact
+
+    def create_opportunity(self, opportunity_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Creates a mock opportunity in the CRM (Salesforce) and returns the opportunity ID.
+        
+        Args:
+            opportunity_data: Dictionary containing opportunity details
+            
+        Returns:
+            Dictionary containing the created opportunity ID (oid)
+        """
+        # In a real implementation, this would connect to Salesforce
+        # For now, we generate a mock ID
+        import random
+        mock_oid = f"006{random.randint(1000000000, 9999999999)}"
+        
+        # Store the opportunity data for retrieval
+        self._opportunities[mock_oid] = opportunity_data
+        
+        return {
+            "oid": mock_oid,
+            "status": "created",
+            "message": "Opportunity created successfully (Mock)"
+        }
+
+    def get_opportunity(self, oid: str) -> Optional[Dict[str, Any]]:
+        """
+        Retrieves opportunity details by ID.
+        """
+        return self._opportunities.get(oid)
 
 crm_service = CRMService()

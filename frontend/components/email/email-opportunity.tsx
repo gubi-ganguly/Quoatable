@@ -1,4 +1,9 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter, useParams } from "next/navigation"
 import { Loader2, AlertCircle, CheckCircle2, Package, Sparkles, Briefcase } from "lucide-react"
+import axios from "axios"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -30,6 +35,39 @@ interface EmailOpportunityProps {
 }
 
 export function EmailOpportunity({ result, isLoading, error, onClose }: EmailOpportunityProps) {
+  const router = useRouter()
+  const params = useParams()
+  const [isCreating, setIsCreating] = useState(false)
+
+  const handleCreateOpportunity = async () => {
+    if (!result) return
+
+    setIsCreating(true)
+    try {
+      const payload = {
+        opportunityName: result.opportunityName,
+        accountName: result.accountName,
+        keyContact: result.keyContact,
+        products: result.products
+      }
+      
+      const response = await axios.post("/api/crm/opportunity", payload)
+      const { oid } = response.data
+      
+      if (oid && params.uid) {
+         // Navigate to the wizard
+         // We need to decode the uid component just in case, but params.uid should be the string
+         const uid = params.uid as string
+         router.push(`/quotable/${uid}/wizard/${oid}/Phase1Classification`)
+      }
+    } catch (err) {
+      console.error("Failed to create opportunity", err)
+      // Ideally show a toast notification here
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="h-full flex flex-col items-center justify-center p-8 text-center space-y-4 bg-slate-50/50 dark:bg-slate-900/50">
@@ -191,12 +229,17 @@ export function EmailOpportunity({ result, isLoading, error, onClose }: EmailOpp
       <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
         <Button
           className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-md transition-all disabled:bg-slate-300 disabled:text-slate-500 disabled:hover:from-slate-300 disabled:hover:to-slate-300 dark:disabled:bg-slate-700 dark:disabled:text-slate-500"
-          disabled={!result.products || result.products.length === 0}
-          onClick={() => {
-            // Placeholder - does nothing for now
-          }}
+          disabled={!result.products || result.products.length === 0 || isCreating}
+          onClick={handleCreateOpportunity}
         >
-          Create Opportunity
+          {isCreating ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Creating Opportunity...
+            </>
+          ) : (
+            "Create Opportunity"
+          )}
         </Button>
       </div>
     </div>

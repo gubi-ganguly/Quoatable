@@ -120,32 +120,48 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-4 dark:bg-zinc-900">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50/50 p-4">
+      {/* Logo and Titles */}
+      <div className="mb-8 flex flex-col items-center text-center">
+        <div className="relative mb-6 h-12 w-48">
+            <img 
+                src="/assets/cme-logo.png" 
+                alt="CME Corp" 
+                className="object-contain"
+            />
+        </div>
+        <h1 className="mb-2 text-3xl font-bold tracking-tight text-slate-900">
+            Quote Automation System
+        </h1>
+        <p className="text-lg text-slate-500">
+            Streamline your equipment quote generation process
+        </p>
+      </div>
+
       <div className="w-full max-w-md">
-        <Card>
-          <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold">Sign in to Quotable</CardTitle>
-            <CardDescription>
-              Connect your Outlook account to get started
+        <Card className="border-slate-200 bg-white shadow-xl">
+          <CardHeader className="space-y-1 pt-8 text-center">
+            <CardTitle className="text-xl font-bold">Login with CME</CardTitle>
+            <CardDescription className="text-slate-500">
+              Use your CME Corp credentials
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="pb-8 pt-4">
+            <div className="space-y-4 px-4">
               <Button 
-                className="w-full" 
+                className="w-full bg-[#04A6E1] text-lg font-medium hover:bg-[#0388B9]" 
                 size="lg" 
                 onClick={handleLogin} 
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Connecting...
                   </>
                 ) : (
                   <>
-                    <Mail className="mr-2 h-4 w-4" />
-                    Sign in with Outlook
+                    Sign In with Outlook
                   </>
                 )}
               </Button>
@@ -155,6 +171,11 @@ export default function Home() {
             </div>
           </CardContent>
         </Card>
+      </div>
+      
+      <div className="mt-8 text-center text-sm text-slate-400">
+        <p>© 2025 CME Corp. All rights reserved.</p>
+        <p>Secure quote automation for equipment processing</p>
       </div>
     </div>
   )
